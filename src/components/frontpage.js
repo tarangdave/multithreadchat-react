@@ -1,12 +1,13 @@
 import React from 'react';
+// import PropTypes from 'prop-types';
 
-const WelcomePage = React.createClass({
-  render: function() {
+class WelcomePage extends React.Component {
+  render() {
     return (
       <div>
       Hello World!!!
       </div>
     );
   }
-});
+}
 export default WelcomePage;

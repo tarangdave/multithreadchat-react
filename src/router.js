@@ -1,10 +1,10 @@
 import React from 'react';
-import { Router, Route, hashHistory} from 'react-router';
+import { BrowserRouter, Route} from 'react-router-dom'
 
 import WelcomePage from './components/frontpage';
 
 export default (
-  <Router history={hashHistory}>
-  	<Route path="/" component={WelcomePage}/>
-  </Router>
+  <BrowserRouter>
+  		<Route path="/" component={WelcomePage}/>
+  </BrowserRouter>
 );
