@@ -1,4 +1,5 @@
 import React from 'react';
+import {hashHistory} from 'react-router';
 // import PropTypes from 'prop-types';
 
 class WelcomePage extends React.Component {
@@ -8,10 +9,18 @@ class WelcomePage extends React.Component {
 			username: '',
 		};
 		this.editUsername = this.editUsername.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this);
 	}
 
 	editUsername(event) {
 		this.setState({username: event.target.value});
+	}
+
+	handleKeyPress(event) {
+		if (event.key === 'Enter') {
+			localStorage.setItem("username", this.state.username);
+			hashHistory.replace("/chatroom");
+		}
 	}
 
   render() {
@@ -30,7 +39,7 @@ class WelcomePage extends React.Component {
       						</div>
       					</div>
       					<div className="col-lg-6 col-md-6 col-sm-6">
-      						<input type="text" value={this.state.username} onChange={this.editUsername} className="frontpage-input-style all-font" placeholder="Enter username"/>
+      						<input type="text" value={this.state.username} onKeyPress={this.handleKeyPress} onChange={this.editUsername} className="frontpage-input-style all-font" placeholder="Enter username"/>
       					</div>
       				</div>
       			</div>

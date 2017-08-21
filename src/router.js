@@ -1,10 +1,12 @@
 import React from 'react';
-import { BrowserRouter, Route} from 'react-router-dom'
+import { Router, Route, hashHistory} from 'react-router';
 
 import WelcomePage from './components/frontpage';
+import ChatRoom from './components/chatroom';
 
 export default (
-  <BrowserRouter>
+  <Router history={hashHistory}>
   		<Route path="/" component={WelcomePage}/>
-  </BrowserRouter>
+  		<Route path="/chatroom" component={ChatRoom}/>
+  </Router>
 );
