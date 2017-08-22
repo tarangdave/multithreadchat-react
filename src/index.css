@@ -150,9 +150,11 @@ body {
 	color: #353535;
 }
 .messagebubble-outline {
+	position: relative;
 	border: 1px solid #fff;
 	border-radius: 5px;
 	min-width: 110px;
+	max-width: 90%;
 	padding: 6px 0 8px 0;
 	padding-left: 9px;
     padding-right: 7px;
@@ -167,4 +169,16 @@ body {
     position: relative;
     margin: 0px;
     margin-bottom: 10px;
+}
+.messagebubble-reply-text-div {
+	position: absolute;
+	font-size: 14px;
+    right: -45px;
+    top: 37px;
+    color: #a5a5a5;
+    cursor: pointer;
+}
+.chatroom-chatbox-reply-list-children {
+	float: left;
+	margin-top: 70px;
 }

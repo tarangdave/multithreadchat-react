@@ -14,6 +14,31 @@ class ActiveUsers extends React.Component {
 
 class MessageBubble extends React.Component {
 
+	constructor(props) {
+		super(props);
+		this.state = {
+			replyTextBox: false,
+			replyText: '',
+		}
+		this.showReplyTextBox = this.showReplyTextBox.bind(this);
+		this.editReply = this.editReply.bind(this);
+		this.sendReply = this.sendReply.bind(this);
+	}
+
+	showReplyTextBox() {
+		this.setState({replyTextBox: true});
+	}
+
+	editReply(event) {
+		this.setState({replyText: event.target.value});
+	}
+
+	sendReply(event) {
+		if(event.key == 'Enter') {
+			this.setState({replyTextBox: false, replyText: ''});
+		}
+	}
+
 	render() {
 		return(
 			<div className="row messagebubble-main-div">
@@ -24,7 +49,14 @@ class MessageBubble extends React.Component {
 					<div className="messagebubble-user-chat">
 						{this.props.data.text}
 					</div>
+					<div className="messagebubble-reply-text-div" onClick={this.showReplyTextBox}>
+						Reply
+					</div>
+					{
+						this.state.replyTextBox ? <input value={this.state.replyText} onKeyPress={this.sendReply} onChange={this.editReply} className="frontpage-input-style all-font" type="text" placeholder="Type your Reply" /> : null
+					}
 				</div>
+				{this.props.children}
 			</div>
 		)
 	}
@@ -37,18 +69,19 @@ class ChatRoom extends React.Component {
 			username: localStorage.getItem('username'),
 			allUsers: [{id:1,name:'abc'},{id:2,name:'bcd'}],
 			messageList: [
-				{id:1,name:'abc',text: 'Hi'},
+				{id:1,name:'abc',text: 'Hi',reply: [
+					{id:13,name:'bcd',text:'kafi low',reply:[
+							{id:17,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko'}
+						]},
+					{id:14,name:'xyz',text:'obviously',reply:[
+							{id:15,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko'}
+						]}
+					]},
 				{id:2,name:'bcd',text:'Lol Hi heightHi Hi Hi heightHiHi heightHi Hi Hi  Hi Hi heightHiHi'},
-				{id:1,name:'abc',text: 'Hi'},
-				{id:2,name:'bcd',text:'Lol'},
-				{id:1,name:'abc',text: 'Hi'},
-				{id:2,name:'bcd',text:'Lol'},
-				{id:1,name:'abc',text: 'Hi'},
-				{id:2,name:'bcd',text:'Lol'},
-				{id:1,name:'abc',text: 'Hi'},
-				{id:2,name:'bcd',text:'Lol'},
-				{id:1,name:'abc',text: 'Hi'},
-				{id:2,name:'bcd',text:'Lol'}
+				{id:3,name:'abc',text: 'Hi'},
+				{id:4,name:'bcd',text:'Lol'},
+				{id:5,name:'abc',text: 'Hi'},
+
 			],
 			messageText: '',
 		};
@@ -64,7 +97,7 @@ class ChatRoom extends React.Component {
 	sendMessage(event) {
 		if(event.key == 'Enter') {
 			var tempMessageList = this.state.messageList;
-			tempMessageList.push({id: 4, name:this.state.username, text:this.state.messageText});
+			tempMessageList.push({id: 16, name:this.state.username, text:this.state.messageText});
 			this.setState({messageList: tempMessageList,messageText: ''});
 
 		}
@@ -72,9 +105,22 @@ class ChatRoom extends React.Component {
 
 	sendButtonMessage() {
 		var tempMessageList = this.state.messageList;
-		tempMessageList.push({id: 4, name:this.state.username, text:this.state.messageText});
+		tempMessageList.push({id: 16, name:this.state.username, text:this.state.messageText});
 		this.setState({messageList: tempMessageList,messageText: ''});
 	}
+
+	list(data) {
+	  	const children = (items) => {
+	    	if (items) {
+	      	return <div className="chatroom-chatbox-reply-list-children">{ this.list(items) }</div>
+	      }
+	    }
+		return data.map((node, index) => {
+	      return <MessageBubble key={ node.id } data={ node }>
+	        { children(node.reply) }
+	      </MessageBubble>
+	    })
+	  }
 
 	render() {
 		var activeNames = this.state.allUsers.map((station,i)=>{
@@ -82,11 +128,6 @@ class ChatRoom extends React.Component {
 				<ActiveUsers key={i} username={station.name} />
 			)
 		});
-		var messageList = this.state.messageList.map((station,i)=> {
-			return (
-				<MessageBubble key={i} data={station} />
-			)
-		})
 		return (
 			<div>
 				<div className="col-lg-12 col-md-12 col-sm-12 chatroom-outerlayout">
@@ -122,7 +163,7 @@ class ChatRoom extends React.Component {
 								</div>
 							</div>
 							<div className="chatroom-chatbox-messagebox-div">
-								{messageList}
+								{this.list(this.state.messageList)}
 							</div>
 						</div>
 					</div>
