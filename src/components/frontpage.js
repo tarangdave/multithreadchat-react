@@ -1,5 +1,11 @@
 import React from 'react';
 import {hashHistory} from 'react-router';
+import Appbase from 'appbase-js';
+var appbaseRef = new Appbase({
+  url: "https://scalr.api.appbase.io",
+  app: "realtimechat",
+  credentials: "eRG9LkiEf:2ccad72c-8713-4618-9c37-29608d51a03b"
+});
 // import PropTypes from 'prop-types';
 
 class WelcomePage extends React.Component {
@@ -18,6 +24,17 @@ class WelcomePage extends React.Component {
 
 	handleKeyPress(event) {
 		if (event.key === 'Enter') {
+			appbaseRef.index({
+				  type: "users",
+				  body: {
+				  	"id": Math.floor((Math.random() * 100000000) + 1),
+				    "username": this.state.username
+				  }
+				}).on('data', function(res) {
+				  console.log("successfully indexed: ", res);
+				}).on('error', function(err) {
+				  console.log("indexing error: ", err);
+			})
 			localStorage.setItem("username", this.state.username);
 			hashHistory.replace("/chatroom");
 		}

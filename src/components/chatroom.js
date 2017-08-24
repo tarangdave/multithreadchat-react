@@ -1,6 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import {hashHistory} from 'react-router';
+import Appbase from 'appbase-js';
+var appbaseRef = new Appbase({
+  url: "https://scalr.api.appbase.io",
+  app: "realtimechat",
+  credentials: "eRG9LkiEf:2ccad72c-8713-4618-9c37-29608d51a03b"
+});
 
 class ActiveUsers extends React.Component {
 
@@ -74,7 +80,7 @@ class ChatRoom extends React.Component {
 		super(props);
 		this.state = {
 			username: localStorage.getItem('username'),
-			allUsers: [{id:1,name:'abc'},{id:2,name:'bcd'}],
+			allUsers: [],
 			allMessage:{
 				reply: [
 				{id:1,name:'abc',text: 'Hi',reply: [
@@ -102,9 +108,46 @@ class ChatRoom extends React.Component {
 	}
 
 	componentWillMount() {
+		var self = this;
+		appbaseRef.search({
+			  type: "users",
+			  body: {
+			    query: {
+			      match_all: {}
+			    }
+			  }
+			}).on('data', function(res) {
+			  console.log("query result: ", res);
+			  var oldUsers = self.state.allUsers;
+			  for(var i=0;i<res.hits.hits.length;i++){
+			  	oldUsers.push({id:res.hits.hits[i]._source.id,name:res.hits.hits[i]._source.username});
+			  	self.setState({allUsers: oldUsers});
+			  }
+			}).on('error', function(err) {
+			  console.log("search error: ", err);
+		})
 		if(localStorage.getItem("username") == null) {
 			hashHistory.replace("/");
 		}
+	}
+
+	componentDidMount() {
+		var self = this;
+		appbaseRef.searchStream({
+			  type: "users",
+			  body: {
+			    query: {
+			      match_all: {}
+			    }
+			  }
+			}).on('data', function(res) {
+			  //console.log("query update: ", res);
+			  var newUsers = self.state.allUsers;
+			  newUsers.push({id:res._source.id,name:res._source.username});
+			  self.setState({allUsers: newUsers});
+			}).on('error', function(err) {
+			  console.log("streaming error: ", err);
+			})
 	}
 
 	editMessage(event) {
@@ -140,12 +183,9 @@ class ChatRoom extends React.Component {
 
 	replyClick(value) {
 		var ob = this.state.allMessage
-		console.log(value);
 		var id = value.repliedId;
 		var abc = ChatRoom.findObjectById(ob, id);
-		console.log(id);
 		abc.reply.push({id: value.id, name: value.name, text: value.text,reply: []});
-		//console.log(abc);
 		this.setState({allMessage: ob});
 		
 	}
@@ -156,7 +196,6 @@ class ChatRoom extends React.Component {
 	      	return <div className="chatroom-chatbox-reply-list-children">{ this.list(items) }</div>
 	      }
 	    }
-	    console.log("data"+data)
 		return data.map((node, index) => {
 	      return <MessageBubble key={ node.id } data={ node } value={this.state.replyValue} onClick={this.replyClick}>
 	        { children(node.reply) }
