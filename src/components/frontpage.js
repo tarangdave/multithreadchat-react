@@ -23,6 +23,12 @@ class WelcomePage extends React.Component {
 		}
 	}
 
+	componentWillMount() {
+		if(localStorage.getItem("username") != null) {
+			hashHistory.replace("/chatroom");
+		}
+	}
+
   render() {
     return (
       <div>

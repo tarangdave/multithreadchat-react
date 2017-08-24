@@ -1,5 +1,6 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
+import {hashHistory} from 'react-router';
 
 class ActiveUsers extends React.Component {
 
@@ -13,6 +14,11 @@ class ActiveUsers extends React.Component {
 }
 
 class MessageBubble extends React.Component {
+
+	propTypes: {
+        	value: PropTypes.string,
+        	onClick: PropTypes.func
+    	}
 
 	constructor(props) {
 		super(props);
@@ -35,6 +41,7 @@ class MessageBubble extends React.Component {
 
 	sendReply(event) {
 		if(event.key == 'Enter') {
+			this.props.onClick({id:Math.floor((Math.random() * 1000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
 			this.setState({replyTextBox: false, replyText: ''});
 		}
 	}
@@ -68,26 +75,36 @@ class ChatRoom extends React.Component {
 		this.state = {
 			username: localStorage.getItem('username'),
 			allUsers: [{id:1,name:'abc'},{id:2,name:'bcd'}],
-			messageList: [
+			allMessage:{
+				reply: [
 				{id:1,name:'abc',text: 'Hi',reply: [
 					{id:13,name:'bcd',text:'kafi low',reply:[
-							{id:17,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko'}
+							{id:17,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko',reply: []}
 						]},
 					{id:14,name:'xyz',text:'obviously',reply:[
-							{id:15,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko'}
+							{id:15,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko',reply:[{id:19,name:'pqr',text:'haha same',reply: []}]}
 						]}
 					]},
-				{id:2,name:'bcd',text:'Lol Hi heightHi Hi Hi heightHiHi heightHi Hi Hi  Hi Hi heightHiHi'},
-				{id:3,name:'abc',text: 'Hi'},
-				{id:4,name:'bcd',text:'Lol'},
-				{id:5,name:'abc',text: 'Hi'},
+				{id:2,name:'bcd',text:'Lol Hi heightHi Hi Hi heightHiHi heightHi Hi Hi  Hi Hi heightHiHi',reply: [{id:25,name:'terry',text:'lolllaa ',reply: []}]},
+				{id:3,name:'abc',text: 'Hi',reply: []},
+				{id:4,name:'bcd',text:'Lol',reply: []},
+				{id:5,name:'abc',text: 'Hi',reply: []},
 
-			],
+			]},
 			messageText: '',
+			replyValue:'',
 		};
 		this.editMessage = this.editMessage.bind(this);
 		this.sendMessage = this.sendMessage.bind(this);
 		this.sendButtonMessage = this.sendButtonMessage.bind(this);
+		this.replyClick = this.replyClick.bind(this);
+		this.list = this.list.bind(this);
+	}
+
+	componentWillMount() {
+		if(localStorage.getItem("username") == null) {
+			hashHistory.replace("/");
+		}
 	}
 
 	editMessage(event) {
@@ -96,17 +113,41 @@ class ChatRoom extends React.Component {
 
 	sendMessage(event) {
 		if(event.key == 'Enter') {
-			var tempMessageList = this.state.messageList;
-			tempMessageList.push({id: 16, name:this.state.username, text:this.state.messageText});
-			this.setState({messageList: tempMessageList,messageText: ''});
-
+			var obj = this.state.allMessage
+			obj['reply'].push({id: Math.floor((Math.random() * 1000) + 1), name:this.state.username, text:this.state.messageText});
+			this.setState({allMessage: obj,messageText: ''});
 		}
 	}
 
 	sendButtonMessage() {
-		var tempMessageList = this.state.messageList;
-		tempMessageList.push({id: 16, name:this.state.username, text:this.state.messageText});
-		this.setState({messageList: tempMessageList,messageText: ''});
+		var obj = this.state.allMessage
+		obj['reply'].push({id: Math.floor((Math.random() * 1000) + 1), name:this.state.username, text:this.state.messageText});
+		this.setState({allMessage: obj,messageText: ''});
+	}
+
+	static findObjectById(root, id) {
+		    if (root.reply) {
+		        for (var k in root.reply) {
+		            if (root.reply[k].id == id) {
+		                return root.reply[k];
+		            }
+		            else if (root.reply.length) {
+		                return ChatRoom.findObjectById(root.reply[k], id);
+		            }
+		        }
+		    }
+		}
+
+	replyClick(value) {
+		var ob = this.state.allMessage
+		console.log(value);
+		var id = value.repliedId;
+		var abc = ChatRoom.findObjectById(ob, id);
+		console.log(id);
+		abc.reply.push({id: value.id, name: value.name, text: value.text,reply: []});
+		//console.log(abc);
+		this.setState({allMessage: ob});
+		
 	}
 
 	list(data) {
@@ -115,8 +156,9 @@ class ChatRoom extends React.Component {
 	      	return <div className="chatroom-chatbox-reply-list-children">{ this.list(items) }</div>
 	      }
 	    }
+	    console.log("data"+data)
 		return data.map((node, index) => {
-	      return <MessageBubble key={ node.id } data={ node }>
+	      return <MessageBubble key={ node.id } data={ node } value={this.state.replyValue} onClick={this.replyClick}>
 	        { children(node.reply) }
 	      </MessageBubble>
 	    })
@@ -163,7 +205,7 @@ class ChatRoom extends React.Component {
 								</div>
 							</div>
 							<div className="chatroom-chatbox-messagebox-div">
-								{this.list(this.state.messageList)}
+								{this.list(this.state.allMessage.reply)}
 							</div>
 						</div>
 					</div>
