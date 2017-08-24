@@ -103,7 +103,7 @@ body {
 	background-color: #ededed;
 	margin-left: -20px;
 	margin-right: -20px;
-	padding: 20px;
+	padding: 10px;
 }
 .chatroom-logo-gif {
 	width: 100%;
@@ -181,4 +181,18 @@ body {
 .chatroom-chatbox-reply-list-children {
 	float: left;
 	margin-top: 70px;
+}
+.allusers-active-div {
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	background-color: #93cc93;
+}
+.activeusers-main-div {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.allusers-active-names-div {
+	font-size: 18px;
 }

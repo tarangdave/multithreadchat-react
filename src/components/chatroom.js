@@ -12,9 +12,15 @@ class ActiveUsers extends React.Component {
 
 	render() {
 		return(
-			<li>
-				{this.props.username}
-			</li>
+			<div className="col-lg-12 col-md-12 col-sm-12 activeusers-main-div">
+				<div className="col-lg-1 col-md-1 col-sm-1">
+					<div className="allusers-active-div">
+					</div>
+				</div>
+				<div className="col-lg-11 col-md-11 col-sm-11 all-font allusers-active-names-div">
+					{this.props.username}
+				</div>
+			</div>
 		)
 	}
 }
@@ -117,7 +123,6 @@ class ChatRoom extends React.Component {
 			    }
 			  }
 			}).on('data', function(res) {
-			  console.log("query result: ", res);
 			  var oldUsers = self.state.allUsers;
 			  for(var i=0;i<res.hits.hits.length;i++){
 			  	oldUsers.push({id:res.hits.hits[i]._source.id,name:res.hits.hits[i]._source.username});
@@ -141,7 +146,6 @@ class ChatRoom extends React.Component {
 			    }
 			  }
 			}).on('data', function(res) {
-			  //console.log("query update: ", res);
 			  var newUsers = self.state.allUsers;
 			  newUsers.push({id:res._source.id,name:res._source.username});
 			  self.setState({allUsers: newUsers});
@@ -223,7 +227,7 @@ class ChatRoom extends React.Component {
 							<div className="all-font chatroom-visitor-list-title">
 								Visitor's List
 							</div>
-							<div className="chatroom-visitor-list-box">
+							<div className="row chatroom-visitor-list-box">
 								{activeNames}
 							</div>
 						</div>
