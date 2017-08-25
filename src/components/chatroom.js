@@ -54,7 +54,7 @@ class MessageBubble extends React.Component {
 	sendReply(event) {
 		if(event.key == 'Enter') {
 			if(this.state.replyText != '') {
-				this.props.onClick({id:Math.floor((Math.random() * 1000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
+				this.props.onClick({id:Math.floor((Math.random() * 10000000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
 				this.setState({replyTextBox: false, replyText: ''});
 			}
 			else {
@@ -179,7 +179,7 @@ class ChatRoom extends React.Component {
 		if(event.key == 'Enter') {
 			if(this.state.messageText != '') {
 				var obj = this.state.allMessage
-				obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
+				obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 				this.setState({allMessage: obj,messageText: ''});
 				var self = this;
 				appbaseRef.index({
@@ -201,7 +201,7 @@ class ChatRoom extends React.Component {
 	sendButtonMessage() {
 		if(this.state.messageText != '') {
 			var obj = this.state.allMessage
-			obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
+			obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 			this.setState({allMessage: obj,messageText: ''});
 			var self = this;
 				appbaseRef.index({
