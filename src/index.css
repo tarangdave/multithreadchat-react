@@ -99,7 +99,8 @@ body {
 	color: #353535;
 }
 .chatroom-visitor-list-box {
-	max-height: 100%;
+	height: 300px;
+	overflow-y: auto;
 	background-color: #ededed;
 	margin-left: -20px;
 	margin-right: -20px;
@@ -192,6 +193,7 @@ body {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	border-bottom: 1px solid #ddd;
 }
 .allusers-active-names-div {
 	font-size: 18px;

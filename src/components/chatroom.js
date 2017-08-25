@@ -87,22 +87,7 @@ class ChatRoom extends React.Component {
 		this.state = {
 			username: localStorage.getItem('username'),
 			allUsers: [],
-			allMessage:{
-				reply: [
-				{id:1,name:'abc',text: 'Hi',reply: [
-					{id:13,name:'bcd',text:'kafi low',reply:[
-							{id:17,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko',reply: []}
-						]},
-					{id:14,name:'xyz',text:'obviously',reply:[
-							{id:15,name:'pqr',text:'haha same here nai toh band baja do sale ki...bohot charbi chadhi hai saale ko',reply:[{id:19,name:'pqr',text:'haha same',reply: []}]}
-						]}
-					]},
-				{id:2,name:'bcd',text:'Lol Hi heightHi Hi Hi heightHiHi heightHi Hi Hi  Hi Hi heightHiHi',reply: [{id:25,name:'terry',text:'lolllaa ',reply: []}]},
-				{id:3,name:'abc',text: 'Hi',reply: []},
-				{id:4,name:'bcd',text:'Lol',reply: []},
-				{id:5,name:'abc',text: 'Hi',reply: []},
-
-			]},
+			allMessage:{reply: []},
 			messageText: '',
 			replyValue:'',
 		};
@@ -115,6 +100,24 @@ class ChatRoom extends React.Component {
 
 	componentWillMount() {
 		var self = this;
+		appbaseRef.search({
+			  type: "messages",
+			  body: {
+			    query: {
+			      match_all: {}
+			    }
+			  }
+			}).on('data', function(res) {
+				//console.log(res.hits.hits[0]._source);
+				var obj = self.state.allMessage;
+				for(var i=0;i<res.hits.hits[0]._source.reply.length;i++){
+					obj['reply'].push(res.hits.hits[0]._source.reply[i]);
+					self.setState({allMessage: obj});
+				}
+				//console.log(self.state.allMessage);
+			}).on('error', function(err) {
+			  console.log("search error: ", err);
+		})
 		appbaseRef.search({
 			  type: "users",
 			  body: {
@@ -138,6 +141,15 @@ class ChatRoom extends React.Component {
 
 	componentDidMount() {
 		var self = this;
+		appbaseRef.getStream({
+			  type: "messages",
+			  id: "AV4YjNzJGGwAESeFuDSb"
+			}).on('data', function(res) {
+			  console.log(res);
+			  self.setState({allMessage: res._source});
+			}).on('error', function(err) {
+			  console.log("streaming error: ", err);
+			})
 		appbaseRef.searchStream({
 			  type: "users",
 			  body: {
@@ -161,36 +173,74 @@ class ChatRoom extends React.Component {
 	sendMessage(event) {
 		if(event.key == 'Enter') {
 			var obj = this.state.allMessage
-			obj['reply'].push({id: Math.floor((Math.random() * 1000) + 1), name:this.state.username, text:this.state.messageText});
+			obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 			this.setState({allMessage: obj,messageText: ''});
+			var self = this;
+			appbaseRef.index({
+				  type: "messages",
+				  id: "AV4YjNzJGGwAESeFuDSb",
+				  body: self.state.allMessage
+				}).on('data', function(res) {
+				  //console.log("successfully indexed: ", res);
+				}).on('error', function(err) {
+				  console.log("indexing error: ", err);
+			})
 		}
 	}
 
 	sendButtonMessage() {
 		var obj = this.state.allMessage
-		obj['reply'].push({id: Math.floor((Math.random() * 1000) + 1), name:this.state.username, text:this.state.messageText});
+		obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 		this.setState({allMessage: obj,messageText: ''});
+		var self = this;
+			appbaseRef.index({
+				  type: "messages",
+				  id: "AV4YjNzJGGwAESeFuDSb",
+				  body: self.state.allMessage
+				}).on('data', function(res) {
+				  //console.log("successfully indexed: ", res);
+				}).on('error', function(err) {
+				  console.log("indexing error: ", err);
+			})
 	}
 
-	static findObjectById(root, id) {
-		    if (root.reply) {
-		        for (var k in root.reply) {
-		            if (root.reply[k].id == id) {
-		                return root.reply[k];
-		            }
-		            else if (root.reply.length) {
-		                return ChatRoom.findObjectById(root.reply[k], id);
-		            }
-		        }
-		    }
-		}
+	static getObjects(obj, key, val) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(ChatRoom.getObjects(obj[i], key, val));    
+        } else 
+        //if key matches and value matches or if key matches and value is not passed (eliminating the case where key matches but passed value does not)
+        if (i == key && obj[i] == val || i == key && val == '') { //
+            objects.push(obj);
+        } else if (obj[i] == val && key == ''){
+            //only add if the object is not already in the array
+            if (objects.lastIndexOf(obj) == -1){
+                objects.push(obj);
+            }
+        }
+    }
+    return objects;
+}
 
 	replyClick(value) {
 		var ob = this.state.allMessage
 		var id = value.repliedId;
-		var abc = ChatRoom.findObjectById(ob, id);
-		abc.reply.push({id: value.id, name: value.name, text: value.text,reply: []});
+		var abc = ChatRoom.getObjects(ob,'id',id);
+		console.log(abc);
+		abc[0].reply.push({"id": value.id, "name": value.name, "text": value.text,"reply": []});
 		this.setState({allMessage: ob});
+		var self = this;
+			appbaseRef.index({
+				  type: "messages",
+				  id: "AV4YjNzJGGwAESeFuDSb",
+				  body: self.state.allMessage
+				}).on('data', function(res) {
+				  //console.log("successfully indexed: ", res);
+				}).on('error', function(err) {
+				  console.log("indexing error: ", err);
+			})
 		
 	}
 
