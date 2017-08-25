@@ -24,19 +24,24 @@ class WelcomePage extends React.Component {
 
 	handleKeyPress(event) {
 		if (event.key === 'Enter') {
-			appbaseRef.index({
-				  type: "users",
-				  body: {
-				  	"id": Math.floor((Math.random() * 100000000) + 1),
-				    "username": this.state.username
-				  }
-				}).on('data', function(res) {
-				  console.log("successfully indexed: ", res);
-				}).on('error', function(err) {
-				  console.log("indexing error: ", err);
-			})
-			localStorage.setItem("username", this.state.username);
-			hashHistory.replace("/chatroom");
+			if(this.state.username != '') {
+				appbaseRef.index({
+					  type: "users",
+					  body: {
+					  	"id": Math.floor((Math.random() * 100000000) + 1),
+					    "username": this.state.username
+					  }
+					}).on('data', function(res) {
+					  console.log("successfully indexed: ", res);
+					}).on('error', function(err) {
+					  console.log("indexing error: ", err);
+				})
+				localStorage.setItem("username", this.state.username);
+				hashHistory.replace("/chatroom");
+			}
+			else {
+
+			}
 		}
 	}
 

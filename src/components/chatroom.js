@@ -13,12 +13,12 @@ class ActiveUsers extends React.Component {
 	render() {
 		return(
 			<div className="col-lg-12 col-md-12 col-sm-12 activeusers-main-div">
+				<div className="col-lg-11 col-md-11 col-sm-11 all-font allusers-active-names-div">
+					{this.props.username}
+				</div>
 				<div className="col-lg-1 col-md-1 col-sm-1">
 					<div className="allusers-active-div">
 					</div>
-				</div>
-				<div className="col-lg-11 col-md-11 col-sm-11 all-font allusers-active-names-div">
-					{this.props.username}
 				</div>
 			</div>
 		)
@@ -53,8 +53,13 @@ class MessageBubble extends React.Component {
 
 	sendReply(event) {
 		if(event.key == 'Enter') {
-			this.props.onClick({id:Math.floor((Math.random() * 1000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
-			this.setState({replyTextBox: false, replyText: ''});
+			if(this.state.replyText != '') {
+				this.props.onClick({id:Math.floor((Math.random() * 1000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
+				this.setState({replyTextBox: false, replyText: ''});
+			}
+			else {
+
+			}
 		}
 	}
 
@@ -172,36 +177,46 @@ class ChatRoom extends React.Component {
 
 	sendMessage(event) {
 		if(event.key == 'Enter') {
-			var obj = this.state.allMessage
-			obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
-			this.setState({allMessage: obj,messageText: ''});
-			var self = this;
-			appbaseRef.index({
-				  type: "messages",
-				  id: "AV4YjNzJGGwAESeFuDSb",
-				  body: self.state.allMessage
-				}).on('data', function(res) {
-				  //console.log("successfully indexed: ", res);
-				}).on('error', function(err) {
-				  console.log("indexing error: ", err);
-			})
+			if(this.state.messageText != '') {
+				var obj = this.state.allMessage
+				obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
+				this.setState({allMessage: obj,messageText: ''});
+				var self = this;
+				appbaseRef.index({
+					  type: "messages",
+					  id: "AV4YjNzJGGwAESeFuDSb",
+					  body: self.state.allMessage
+					}).on('data', function(res) {
+					  //console.log("successfully indexed: ", res);
+					}).on('error', function(err) {
+					  console.log("indexing error: ", err);
+				})
+			}
+			else {
+
+			}
 		}
 	}
 
 	sendButtonMessage() {
-		var obj = this.state.allMessage
-		obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
-		this.setState({allMessage: obj,messageText: ''});
-		var self = this;
-			appbaseRef.index({
-				  type: "messages",
-				  id: "AV4YjNzJGGwAESeFuDSb",
-				  body: self.state.allMessage
-				}).on('data', function(res) {
-				  //console.log("successfully indexed: ", res);
-				}).on('error', function(err) {
-				  console.log("indexing error: ", err);
-			})
+		if(this.state.messageText != '') {
+			var obj = this.state.allMessage
+			obj['reply'].push({"id": Math.floor((Math.random() * 1000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
+			this.setState({allMessage: obj,messageText: ''});
+			var self = this;
+				appbaseRef.index({
+					  type: "messages",
+					  id: "AV4YjNzJGGwAESeFuDSb",
+					  body: self.state.allMessage
+					}).on('data', function(res) {
+					  //console.log("successfully indexed: ", res);
+					}).on('error', function(err) {
+					  console.log("indexing error: ", err);
+				})
+		}
+		else {
+
+		}
 	}
 
 	static getObjects(obj, key, val) {
