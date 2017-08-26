@@ -124,6 +124,8 @@ class ChatRoom extends React.Component {
 					obj['reply'].push(res.hits.hits[0]._source.reply[i]);
 					self.setState({allMessage: obj});
 				}
+				var objDiv = document.getElementById("chatbox-scroll");
+				objDiv.scrollTop = objDiv.scrollHeight;
 			}).on('error', function(err) {
 			  console.log("search error: ", err);
 		})
@@ -185,6 +187,8 @@ class ChatRoom extends React.Component {
 					  body: self.state.allMessage
 					}).on('data', function(res) {
 					  //console.log("successfully indexed: ", res);
+					  var objDiv = document.getElementById("chatbox-scroll");
+						objDiv.scrollTop = objDiv.scrollHeight;
 					}).on('error', function(err) {
 					  console.log("indexing error: ", err);
 				})
@@ -200,6 +204,8 @@ class ChatRoom extends React.Component {
 			var obj = this.state.allMessage
 			obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 			this.setState({allMessage: obj,messageText: ''});
+			var objDiv = document.getElementById("chatbox-scroll");
+			objDiv.scrollTop = objDiv.scrollHeight;
 			var self = this;
 				appbaseRef.index({
 					  type: "messages",
@@ -309,7 +315,7 @@ class ChatRoom extends React.Component {
 									</div>
 								</div>
 							</div>
-							<div className="chatroom-chatbox-messagebox-div">
+							<div className="chatroom-chatbox-messagebox-div" id="chatbox-scroll">
 								{this.list(this.state.allMessage.reply)}
 							</div>
 						</div>
