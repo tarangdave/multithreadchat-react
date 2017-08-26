@@ -42,15 +42,15 @@ class MessageBubble extends React.Component {
 		this.editReply = this.editReply.bind(this);
 		this.sendReply = this.sendReply.bind(this);
 	}
-
+	/*show the textbox when reply is clicked*/
 	showReplyTextBox() {
 		this.setState({replyTextBox: true});
 	}
-
+	/*editing the reply*/
 	editReply(event) {
 		this.setState({replyText: event.target.value});
 	}
-
+	/*key event handler which sends the callback to the parent component - ChatRoom*/
 	sendReply(event) {
 		if(event.key === 'Enter') {
 			if(this.state.replyText !== '') {
@@ -77,9 +77,12 @@ class MessageBubble extends React.Component {
 						Reply
 					</div>
 					{
-						this.state.replyTextBox ? <input value={this.state.replyText} onKeyPress={this.sendReply} onChange={this.editReply} className="frontpage-input-style all-font" type="text" placeholder="Type your Reply" /> : null
+						this.state.replyTextBox ? <input autoFocus value={this.state.replyText} onKeyPress={this.sendReply} onChange={this.editReply} className="frontpage-input-style all-font" type="text" placeholder="Type your Reply" /> : null
 					}
 				</div>
+				{
+					/*to render the children i.e. the new replies*/
+				}
 				{this.props.children}
 			</div>
 		)
@@ -107,6 +110,7 @@ class ChatRoom extends React.Component {
 
 	componentWillMount() {
 		var self = this;
+		/*search for the message JSON and setting the state to pass it as a prop to the child component - MessageBubble*/
 		appbaseRef.search({
 			  type: "messages",
 			  body: {
@@ -115,17 +119,15 @@ class ChatRoom extends React.Component {
 			    }
 			  }
 			}).on('data', function(res) {
-				//console.log(res.hits.hits[0]._source);
 				var obj = self.state.allMessage;
 				for(var i=0;i<res.hits.hits[0]._source.reply.length;i++){
 					obj['reply'].push(res.hits.hits[0]._source.reply[i]);
 					self.setState({allMessage: obj});
 				}
-				//console.log(self.state.allMessage);
 			}).on('error', function(err) {
 			  console.log("search error: ", err);
 		})
-		
+		/*Also, if a new user accesses this link without entering the username, it will be redirected to frontpage*/
 		if(localStorage.getItem("username") == null) {
 			hashHistory.replace("/");
 		}
@@ -133,11 +135,11 @@ class ChatRoom extends React.Component {
 
 	componentDidMount() {
 		var self = this;
+		/*get the users data from a particular id and set the state of allUsers to render the visitor list*/
 		appbaseRef.get({
 			  type: "users",
 			  id: "AV4dgVI7y9KMBP0rR25F"
 			}).on('data', function(res) {
-				console.log(res);
 				var oldUsers = self.state.allUsers;
 			  	for(var i=0;i<res._source.users.length;i++){
 			  		oldUsers['users'].push({id:res._source.users[i].id,name:res._source.users[i].name});
@@ -146,32 +148,30 @@ class ChatRoom extends React.Component {
 			}).on('error', function(err) {
 			  console.log("search error: ", err);
 		})
+			/*stream the messages if a new message hits the table at the particular*/
 		appbaseRef.getStream({
 			  type: "messages",
 			  id: "AV4YjNzJGGwAESeFuDSb"
 			}).on('data', function(res) {
-			  //console.log(res);
 			  self.setState({allMessage: res._source});
 			}).on('error', function(err) {
 			  console.log("streaming error: ", err);
 			})
+			/*stream the users data as soon as a user logs in the chatroom*/
 		appbaseRef.getStream({
 			  type: "users",
 			  id: "AV4dgVI7y9KMBP0rR25F"
 			}).on('data', function(res) {
-				console.log(res);
-			  // var newUsers = self.state.allUsers;
-			  // newUsers["users"].push({id:res._source.id,name:res._source.username});
 			   self.setState({allUsers: res._source});
 			}).on('error', function(err) {
 			  console.log("streaming error: ", err);
 			})
 	}
-
+	/*typing the main message */
 	editMessage(event) {
 		this.setState({messageText: event.target.value});
 	}
-
+	/*key event handler to send the main message*/
 	sendMessage(event) {
 		if(event.key === 'Enter') {
 			if(this.state.messageText !== '') {
@@ -194,7 +194,7 @@ class ChatRoom extends React.Component {
 			}
 		}
 	}
-
+	/*button click handler to send main message*/
 	sendButtonMessage() {
 		if(this.state.messageText !== '') {
 			var obj = this.state.allMessage
@@ -215,7 +215,7 @@ class ChatRoom extends React.Component {
 
 		}
 	}
-
+	/*static function to get the object at a particular (key,value) pair*/
 	static getObjects(obj, key, val) {
     var objects = [];
     for (var i in obj) {
@@ -235,12 +235,12 @@ class ChatRoom extends React.Component {
     }
     return objects;
 }
-
+	/*function that gets the callback value from the child component - MessageBubble*/
 	replyClick(value) {
 		var ob = this.state.allMessage
 		var id = value.repliedId;
+		/*call the function getObjects() to push the new message reply.*/
 		var abc = ChatRoom.getObjects(ob,'id',id);
-		console.log(abc);
 		abc[0].reply.push({"id": value.id, "name": value.name, "text": value.text,"reply": []});
 		this.setState({allMessage: ob});
 		var self = this;
@@ -255,7 +255,7 @@ class ChatRoom extends React.Component {
 			})
 		
 	}
-
+	/*maps the messages json and renders the MessageBubble*/
 	list(data) {
 	  	const children = (items) => {
 	    	if (items) {

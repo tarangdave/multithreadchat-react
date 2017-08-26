@@ -17,11 +17,11 @@ class WelcomePage extends React.Component {
 		this.editUsername = this.editUsername.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
 	}
-
+	/*editing username on the welcome page*/
 	editUsername(event) {
 		this.setState({username: event.target.value});
 	}
-
+	/*event handler to index user in Appbase*/
 	handleKeyPress(event) {
 		var self = this;
 		if (event.key === 'Enter') {
@@ -47,6 +47,7 @@ class WelcomePage extends React.Component {
 				})
 				
 				localStorage.setItem("username", this.state.username);
+				/*redirect to the chatroom*/
 				hashHistory.replace("/chatroom");
 			}
 			else {
@@ -56,6 +57,7 @@ class WelcomePage extends React.Component {
 	}
 
 	componentWillMount() {
+		/*check if the user is already logged in*/
 		if(localStorage.getItem("username") != null) {
 			hashHistory.replace("/chatroom");
 		}
