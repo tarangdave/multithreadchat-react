@@ -193,7 +193,7 @@ body {
 	width: 10px;
 	height: 10px;
 	border-radius: 50%;
-	background-color: #93cc93;
+	background-color: #42B72A;
 }
 .activeusers-main-div {
 	display: flex;
@@ -203,4 +203,8 @@ body {
 }
 .allusers-active-names-div {
 	font-size: 18px;
+}
+.allUsers-active-main-div {
+	height: 25px;
+	padding-top: 8px;
 }

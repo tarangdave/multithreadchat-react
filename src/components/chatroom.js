@@ -16,7 +16,7 @@ class ActiveUsers extends React.Component {
 				<div className="col-lg-11 col-md-11 col-sm-11 all-font allusers-active-names-div">
 					{this.props.username}
 				</div>
-				<div className="col-lg-1 col-md-1 col-sm-1">
+				<div className="col-lg-1 col-md-1 col-sm-1 allUsers-active-main-div">
 					<div className="allusers-active-div">
 					</div>
 				</div>
@@ -52,8 +52,8 @@ class MessageBubble extends React.Component {
 	}
 
 	sendReply(event) {
-		if(event.key == 'Enter') {
-			if(this.state.replyText != '') {
+		if(event.key === 'Enter') {
+			if(this.state.replyText !== '') {
 				this.props.onClick({id:Math.floor((Math.random() * 10000000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
 				this.setState({replyTextBox: false, replyText: ''});
 			}
@@ -91,7 +91,9 @@ class ChatRoom extends React.Component {
 		super(props);
 		this.state = {
 			username: localStorage.getItem('username'),
-			allUsers: [],
+			allUsers: {
+				users: []
+			},
 			allMessage:{reply: []},
 			messageText: '',
 			replyValue:'',
@@ -123,22 +125,7 @@ class ChatRoom extends React.Component {
 			}).on('error', function(err) {
 			  console.log("search error: ", err);
 		})
-		appbaseRef.search({
-			  type: "users",
-			  body: {
-			    query: {
-			      match_all: {}
-			    }
-			  }
-			}).on('data', function(res) {
-			  var oldUsers = self.state.allUsers;
-			  for(var i=0;i<res.hits.hits.length;i++){
-			  	oldUsers.push({id:res.hits.hits[i]._source.id,name:res.hits.hits[i]._source.username});
-			  	self.setState({allUsers: oldUsers});
-			  }
-			}).on('error', function(err) {
-			  console.log("search error: ", err);
-		})
+		
 		if(localStorage.getItem("username") == null) {
 			hashHistory.replace("/");
 		}
@@ -146,26 +133,36 @@ class ChatRoom extends React.Component {
 
 	componentDidMount() {
 		var self = this;
+		appbaseRef.get({
+			  type: "users",
+			  id: "AV4dgVI7y9KMBP0rR25F"
+			}).on('data', function(res) {
+				console.log(res);
+				var oldUsers = self.state.allUsers;
+			  	for(var i=0;i<res._source.users.length;i++){
+			  		oldUsers['users'].push({id:res._source.users[i].id,name:res._source.users[i].name});
+			  		self.setState({allUsers: oldUsers});
+			  	}
+			}).on('error', function(err) {
+			  console.log("search error: ", err);
+		})
 		appbaseRef.getStream({
 			  type: "messages",
 			  id: "AV4YjNzJGGwAESeFuDSb"
 			}).on('data', function(res) {
-			  console.log(res);
+			  //console.log(res);
 			  self.setState({allMessage: res._source});
 			}).on('error', function(err) {
 			  console.log("streaming error: ", err);
 			})
-		appbaseRef.searchStream({
+		appbaseRef.getStream({
 			  type: "users",
-			  body: {
-			    query: {
-			      match_all: {}
-			    }
-			  }
+			  id: "AV4dgVI7y9KMBP0rR25F"
 			}).on('data', function(res) {
-			  var newUsers = self.state.allUsers;
-			  newUsers.push({id:res._source.id,name:res._source.username});
-			  self.setState({allUsers: newUsers});
+				console.log(res);
+			  // var newUsers = self.state.allUsers;
+			  // newUsers["users"].push({id:res._source.id,name:res._source.username});
+			   self.setState({allUsers: res._source});
 			}).on('error', function(err) {
 			  console.log("streaming error: ", err);
 			})
@@ -176,8 +173,8 @@ class ChatRoom extends React.Component {
 	}
 
 	sendMessage(event) {
-		if(event.key == 'Enter') {
-			if(this.state.messageText != '') {
+		if(event.key === 'Enter') {
+			if(this.state.messageText !== '') {
 				var obj = this.state.allMessage
 				obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 				this.setState({allMessage: obj,messageText: ''});
@@ -199,7 +196,7 @@ class ChatRoom extends React.Component {
 	}
 
 	sendButtonMessage() {
-		if(this.state.messageText != '') {
+		if(this.state.messageText !== '') {
 			var obj = this.state.allMessage
 			obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
 			this.setState({allMessage: obj,messageText: ''});
@@ -273,7 +270,7 @@ class ChatRoom extends React.Component {
 	  }
 
 	render() {
-		var activeNames = this.state.allUsers.map((station,i)=>{
+		var activeNames = this.state.allUsers.users.map((station,i)=>{
 			return (
 				<ActiveUsers key={i} username={station.name} />
 			)

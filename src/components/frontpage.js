@@ -23,19 +23,29 @@ class WelcomePage extends React.Component {
 	}
 
 	handleKeyPress(event) {
+		var self = this;
 		if (event.key === 'Enter') {
-			if(this.state.username != '') {
-				appbaseRef.index({
+			if(this.state.username !== '') {
+				appbaseRef.get({
 					  type: "users",
-					  body: {
-					  	"id": Math.floor((Math.random() * 100000000) + 1),
-					    "username": this.state.username
-					  }
+					  id: "AV4dgVI7y9KMBP0rR25F"
 					}).on('data', function(res) {
-					  console.log("successfully indexed: ", res);
+						var oldUsers = res._source;
+						oldUsers.users.push({id: Math.floor((Math.random() * 100000000) + 1), name: self.state.username});
+						console.log(oldUsers);
+						appbaseRef.index({
+							  type: "users",
+							  id: "AV4dgVI7y9KMBP0rR25F",
+							  body: oldUsers
+							}).on('data', function(res) {
+							  console.log("successfully indexed: ", res);
+							}).on('error', function(err) {
+							  console.log("indexing error: ", err);
+						})
 					}).on('error', function(err) {
-					  console.log("indexing error: ", err);
+					  console.log("search error: ", err);
 				})
+				
 				localStorage.setItem("username", this.state.username);
 				hashHistory.replace("/chatroom");
 			}
