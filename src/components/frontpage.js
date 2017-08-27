@@ -3,8 +3,8 @@ import {hashHistory} from 'react-router';
 import Appbase from 'appbase-js';
 /*var appbaseRef = new Appbase({
   url: "https://scalr.api.appbase.io",
-  app: "",
-  credentials: ""
+  app: "realtimechat",
+  credentials: "eRG9LkiEf:2ccad72c-8713-4618-9c37-29608d51a03b"
 });*/
 // import PropTypes from 'prop-types';
 
