@@ -3,8 +3,8 @@
 ---
 A ReactJS project to showcase Appbase as a streaming database service.
 ## Features
-> Chat with Real Time updates
-> Multithreaded (Reply to a chat like `Reddit`)
+* Chat with Real Time updates
+* Multithreaded (Reply to a chat like `Reddit`)
 ---
 ## To run on local server
 * clone the repo
