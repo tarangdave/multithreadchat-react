@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {hashHistory} from 'react-router';
 import Appbase from 'appbase-js';
-/*var appbaseRef = new Appbase({
+var appbaseRef = new Appbase({
   url: "https://scalr.api.appbase.io",
   app: "realtimechat",
   credentials: "eRG9LkiEf:2ccad72c-8713-4618-9c37-29608d51a03b"
-});*/
+});
 
 class ActiveUsers extends React.Component {
 
@@ -37,6 +37,7 @@ class MessageBubble extends React.Component {
 		this.state = {
 			replyTextBox: false,
 			replyText: '',
+			timeago: '',
 		}
 		this.showReplyTextBox = this.showReplyTextBox.bind(this);
 		this.editReply = this.editReply.bind(this);
@@ -54,13 +55,53 @@ class MessageBubble extends React.Component {
 	sendReply(event) {
 		if(event.key === 'Enter') {
 			if(this.state.replyText !== '') {
-				this.props.onClick({id:Math.floor((Math.random() * 10000000) + 1),name:localStorage.getItem("username"),text:this.state.replyText,repliedId:this.props.data.id})
+				this.props.onClick({id:Math.floor((Math.random() * 10000000) + 1),name:localStorage.getItem("username"),time:Math.floor(Date.now()),text:this.state.replyText,repliedId:this.props.data.id})
 				this.setState({replyTextBox: false, replyText: ''});
 			}
 			else {
 
 			}
 		}
+	}
+
+	static timeDifference(current, previous) {
+		var msPerMinute = 60 * 1000;
+    	var msPerHour = msPerMinute * 60;
+    	var msPerDay = msPerHour * 24;
+    	var msPerMonth = msPerDay * 30;
+    	var msPerYear = msPerDay * 365;
+    
+    	var elapsed = current - previous;
+    
+    	if (elapsed < msPerMinute) {
+    	     return Math.round(elapsed/1000) + ' sec ago';   
+    	}
+    
+    	else if (elapsed < msPerHour) {
+    	     return Math.round(elapsed/msPerMinute) + ' min ago';   
+    	}
+    	
+    	else if (elapsed < msPerDay ) {
+    	     return Math.round(elapsed/msPerHour ) + ' hr ago';   
+    	}
+
+    	else if (elapsed < msPerMonth) {
+    	     return Math.round(elapsed/msPerDay) + ' d ago';   
+    	}
+    
+    	else if (elapsed < msPerYear) {
+    	     return Math.round(elapsed/msPerMonth) + ' m ago';   
+    	}
+    	
+    	else {
+    	     return Math.round(elapsed/msPerYear ) + ' yr ago';   
+    	}
+	}
+
+	componentDidMount() {
+		var current = Math.floor(Date.now());
+		this.setState({timeago: MessageBubble.timeDifference(current,this.props.data.time)});
+
 	}
 
 	render() {
@@ -72,6 +113,9 @@ class MessageBubble extends React.Component {
 					</div>
 					<div className="messagebubble-user-chat">
 						{this.props.data.text}
+					</div>
+					<div className="messagebubble-time-div">
+						{this.state.timeago}
 					</div>
 					<div className="messagebubble-reply-text-div" onClick={this.showReplyTextBox}>
 						Reply
@@ -178,7 +222,7 @@ class ChatRoom extends React.Component {
 		if(event.key === 'Enter') {
 			if(this.state.messageText !== '') {
 				var obj = this.state.allMessage
-				obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
+				obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username,"time": Math.floor(Date.now()), "text":this.state.messageText,"reply":[]});
 				this.setState({allMessage: obj,messageText: ''});
 				var self = this;
 				appbaseRef.index({
@@ -202,7 +246,7 @@ class ChatRoom extends React.Component {
 	sendButtonMessage() {
 		if(this.state.messageText !== '') {
 			var obj = this.state.allMessage
-			obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username, "text":this.state.messageText,"reply":[]});
+			obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username,"time": Math.floor(Date.now()), "text":this.state.messageText,"reply":[]});
 			this.setState({allMessage: obj,messageText: ''});
 			var objDiv = document.getElementById("chatbox-scroll");
 			objDiv.scrollTop = objDiv.scrollHeight;
@@ -247,7 +291,7 @@ class ChatRoom extends React.Component {
 		var id = value.repliedId;
 		/*call the function getObjects() to push the new message reply.*/
 		var abc = ChatRoom.getObjects(ob,'id',id);
-		abc[0].reply.push({"id": value.id, "name": value.name, "text": value.text,"reply": []});
+		abc[0].reply.push({"id": value.id, "name": value.name,"time":value.time, "text": value.text,"reply": []});
 		this.setState({allMessage: ob});
 		var self = this;
 			appbaseRef.index({
