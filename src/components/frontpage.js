@@ -19,7 +19,8 @@ class WelcomePage extends React.Component {
 	}
 	/*editing username on the welcome page*/
 	editUsername(event) {
-		this.setState({username: event.target.value});
+		const username = event.target.value;
+		this.setState({username});
 	}
 	/*event handler to index user in Appbase*/
 	handleKeyPress(event) {
@@ -29,7 +30,7 @@ class WelcomePage extends React.Component {
 				appbaseRef.index({
 					  type: "activeUsers",
 					  body: {
-					  	"id": Math.floor((Math.random() * 100000000) + 1),
+					  	"id": Math.floor((Math.random() * 10000000000) + 1),
 					    "username": this.state.username,
 					    "time": Math.floor(Date.now())
 					  }

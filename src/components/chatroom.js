@@ -49,13 +49,14 @@ class MessageBubble extends React.Component {
 	}
 	/*editing the reply*/
 	editReply(event) {
-		this.setState({replyText: event.target.value});
+		const replyText = event.target.value;
+		this.setState({ replyText });
 	}
 	/*key event handler which sends the callback to the parent component - ChatRoom*/
 	sendReply(event) {
 		if(event.key === 'Enter') {
 			if(this.state.replyText !== '') {
-				this.props.onClick({id:Math.floor((Math.random() * 10000000) + 1),name:localStorage.getItem("username"),time:Math.floor(Date.now()),text:this.state.replyText,repliedId:this.props.data.id})
+				this.props.onClick({id:Math.floor((Math.random() * 100000000000) + 1),name:localStorage.getItem("username"),time:Math.floor(Date.now()),text:this.state.replyText,repliedId:this.props.data.id})
 				this.setState({replyTextBox: false, replyText: ''});
 			}
 			else {
@@ -276,7 +277,7 @@ class ChatRoom extends React.Component {
 		if(event.key === 'Enter') {
 			if(this.state.messageText !== '') {
 				var obj = this.state.allMessage
-				obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username,"time": Math.floor(Date.now()), "text":this.state.messageText,"reply":[]});
+				obj['reply'].push({"id": Math.floor((Math.random() * 10000000000) + 1), "name":this.state.username,"time": Math.floor(Date.now()), "text":this.state.messageText,"reply":[]});
 				this.setState({allMessage: obj,messageText: ''});
 				var self = this;
 				appbaseRef.index({
@@ -300,7 +301,7 @@ class ChatRoom extends React.Component {
 	sendButtonMessage() {
 		if(this.state.messageText !== '') {
 			var obj = this.state.allMessage
-			obj['reply'].push({"id": Math.floor((Math.random() * 10000000) + 1), "name":this.state.username,"time": Math.floor(Date.now()), "text":this.state.messageText,"reply":[]});
+			obj['reply'].push({"id": Math.floor((Math.random() * 10000000000) + 1), "name":this.state.username,"time": Math.floor(Date.now()), "text":this.state.messageText,"reply":[]});
 			this.setState({allMessage: obj,messageText: ''});
 			var objDiv = document.getElementById("chatbox-scroll");
 			objDiv.scrollTop = objDiv.scrollHeight;
@@ -391,7 +392,7 @@ class ChatRoom extends React.Component {
 								<img src="https://media.giphy.com/media/3o85xjSETVG3OpPyx2/giphy.gif" alt="Appbase GIF" />
 							</div>
 							<div className="all-font chatroom-visitor-list-title">
-								Visitor's List
+								Online Users
 							</div>
 							<div className="row chatroom-visitor-list-box">
 								{activeNames}
