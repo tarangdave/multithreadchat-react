@@ -26,32 +26,21 @@ class WelcomePage extends React.Component {
 		var self = this;
 		if (event.key === 'Enter') {
 			if(this.state.username !== '') {
-				appbaseRef.get({
-					  type: "users",
-					  id: "AV4dgVI7y9KMBP0rR25F"
+				appbaseRef.index({
+					  type: "activeUsers",
+					  body: {
+					  	"id": Math.floor((Math.random() * 100000000) + 1),
+					    "username": this.state.username,
+					    "time": Math.floor(Date.now())
+					  }
 					}).on('data', function(res) {
-						var oldUsers = res._source;
-						oldUsers.users.push({id: Math.floor((Math.random() * 100000000) + 1), name: self.state.username});
-						console.log(oldUsers);
-						appbaseRef.index({
-							  type: "users",
-							  id: "AV4dgVI7y9KMBP0rR25F",
-							  body: oldUsers
-							}).on('data', function(res) {
-							  console.log("successfully indexed: ", res);
-							}).on('error', function(err) {
-							  console.log("indexing error: ", err);
-						})
+					  console.log("successfully indexed: ", res);
 					}).on('error', function(err) {
-					  console.log("search error: ", err);
-				})
-				
+					  console.log("indexing error: ", err);
+				})				
 				localStorage.setItem("username", this.state.username);
 				/*redirect to the chatroom*/
 				hashHistory.replace("/chatroom");
-			}
-			else {
-
 			}
 		}
 	}

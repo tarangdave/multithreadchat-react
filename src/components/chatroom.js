@@ -138,9 +138,7 @@ class ChatRoom extends React.Component {
 		super(props);
 		this.state = {
 			username: localStorage.getItem('username'),
-			allUsers: {
-				users: []
-			},
+			allUsers: [],
 			allMessage:{reply: []},
 			messageText: '',
 			replyValue:'',
@@ -153,6 +151,60 @@ class ChatRoom extends React.Component {
 	}
 
 	componentWillMount() {
+		/*Also, if a new user accesses this link without entering the username, it will be redirected to frontpage*/
+		if(localStorage.getItem("username") == null) {
+			hashHistory.replace("/");
+		}
+	}
+
+	componentDidMount() {
+		var self = this;
+		var id;
+		setTimeout(()=>{
+			appbaseRef.search({
+			  type: "activeUsers",
+			  body: {
+			    query: {
+			      match: {
+			      	"username": localStorage.getItem("username")
+			      }
+			    }
+			  }
+			}).on('data', function(res) {
+				console.log(res);
+			  localStorage.setItem("id",res.hits.hits[0]._id);
+			  appbaseRef.update({
+				  type: "activeUsers",
+				  id: localStorage.getItem("id"),
+				  body: {
+				    doc: {
+				      "time": Math.floor(Date.now())
+				    }
+				  }
+				}).on('data', function(res) {
+
+				}).on('error', function(err) {
+				  console.log("update document error: ", err);
+				})
+			}).on('error', function(err) {
+			  console.log("search error: ", err);
+			})
+		},1000);
+		setInterval(()=>{
+			appbaseRef.update({
+			  type: "activeUsers",
+			  id: localStorage.getItem("id"),
+			  body: {
+			    doc: {
+			      "time": Math.floor(Date.now())
+			    }
+			  }
+			}).on('data', function(res) {
+
+			}).on('error', function(err) {
+			  console.log("update document error: ", err);
+			})
+		},30000)
 		var self = this;
 		/*search for the message JSON and setting the state to pass it as a prop to the child component - MessageBubble*/
 		appbaseRef.search({
@@ -173,27 +225,6 @@ class ChatRoom extends React.Component {
 			}).on('error', function(err) {
 			  console.log("search error: ", err);
 		})
-		/*Also, if a new user accesses this link without entering the username, it will be redirected to frontpage*/
-		if(localStorage.getItem("username") == null) {
-			hashHistory.replace("/");
-		}
-	}
-
-	componentDidMount() {
-		var self = this;
-		/*get the users data from a particular id and set the state of allUsers to render the visitor list*/
-		appbaseRef.get({
-			  type: "users",
-			  id: "AV4dgVI7y9KMBP0rR25F"
-			}).on('data', function(res) {
-				var oldUsers = self.state.allUsers;
-			  	for(var i=0;i<res._source.users.length;i++){
-			  		oldUsers['users'].push({id:res._source.users[i].id,name:res._source.users[i].name});
-			  		self.setState({allUsers: oldUsers});
-			  	}
-			}).on('error', function(err) {
-			  console.log("search error: ", err);
-		})
 			/*stream the messages if a new message hits the table at the particular*/
 		appbaseRef.getStream({
 			  type: "messages",
@@ -204,11 +235,34 @@ class ChatRoom extends React.Component {
 			  console.log("streaming error: ", err);
 			})
 			/*stream the users data as soon as a user logs in the chatroom*/
-		appbaseRef.getStream({
-			  type: "users",
-			  id: "AV4dgVI7y9KMBP0rR25F"
+			appbaseRef.searchStream({
+			  type: "activeUsers",
+			  body: {
+			    query: {
+			      match_all: {}
+			    }
+			  }
 			}).on('data', function(res) {
-			   self.setState({allUsers: res._source});
+			  console.log("query update: ", res);	  
+				  appbaseRef.search({
+					  type: "activeUsers",
+					  body: {
+					    query: {
+					      match_all: {}
+					    }
+					  }
+					}).on('data', function(res) {
+					  var oldUsers = [];
+					  for(var i=0;i<res.hits.hits.length;i++){
+						var currentTime = Math.floor(Date.now());
+						if((currentTime - res.hits.hits[i]._source.time) < 60000){
+							oldUsers.push({id:res.hits.hits[i]._source.id,name:res.hits.hits[i]._source.username});
+						}			  	
+					  	self.setState({allUsers: oldUsers});
+					  }
+					}).on('error', function(err) {
+					  console.log("search error: ", err);
+				})
 			}).on('error', function(err) {
 			  console.log("streaming error: ", err);
 			})
@@ -320,7 +374,7 @@ class ChatRoom extends React.Component {
 	  }
 
 	render() {
-		var activeNames = this.state.allUsers.users.map((station,i)=>{
+		var activeNames = this.state.allUsers.map((station,i)=>{
 			return (
 				<ActiveUsers key={i} username={station.name} />
 			)
