@@ -35,7 +35,7 @@ class WelcomePage extends React.Component {
 					    "time": Math.floor(Date.now())
 					  }
 					}).on('data', function(res) {
-					  console.log("successfully indexed: ", res);
+					  //console.log("successfully indexed: ", res);
 					}).on('error', function(err) {
 					  console.log("indexing error: ", err);
 				})				

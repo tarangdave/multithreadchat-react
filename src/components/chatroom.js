@@ -172,7 +172,6 @@ class ChatRoom extends React.Component {
 			    }
 			  }
 			}).on('data', function(res) {
-				console.log(res);
 			  localStorage.setItem("id",res.hits.hits[0]._id);
 			  appbaseRef.update({
 				  type: "activeUsers",
@@ -244,7 +243,6 @@ class ChatRoom extends React.Component {
 			    }
 			  }
 			}).on('data', function(res) {
-			  console.log("query update: ", res);	  
 				  appbaseRef.search({
 					  type: "activeUsers",
 					  body: {
