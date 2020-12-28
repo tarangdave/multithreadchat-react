@@ -190,21 +190,21 @@ class ChatRoom extends React.Component {
 			  console.log("search error: ", err);
 			})
 		},1000);
-		setInterval(()=>{
-			appbaseRef.update({
-			  type: "activeUsers",
-			  id: localStorage.getItem("id"),
-			  body: {
-			    doc: {
-			      "time": Math.floor(Date.now())
-			    }
-			  }
-			}).on('data', function(res) {
+		// setInterval(()=>{
+		// 	appbaseRef.update({
+		// 	  type: "activeUsers",
+		// 	  id: localStorage.getItem("id"),
+		// 	  body: {
+		// 	    doc: {
+		// 	      "time": Math.floor(Date.now())
+		// 	    }
+		// 	  }
+		// 	}).on('data', function(res) {
 
-			}).on('error', function(err) {
-			  console.log("update document error: ", err);
-			})
-		},30000)
+		// 	}).on('error', function(err) {
+		// 	  console.log("update document error: ", err);
+		// 	})
+		// },30000)
 		var self = this;
 		/*search for the message JSON and setting the state to pass it as a prop to the child component - MessageBubble*/
 		appbaseRef.search({
@@ -235,36 +235,37 @@ class ChatRoom extends React.Component {
 			  console.log("streaming error: ", err);
 			})
 			/*stream the users data as soon as a user logs in the chatroom*/
-			appbaseRef.searchStream({
-			  type: "activeUsers",
-			  body: {
-			    query: {
-			      match_all: {}
-			    }
-			  }
-			}).on('data', function(res) {
-				  appbaseRef.search({
-					  type: "activeUsers",
-					  body: {
-					    query: {
-					      match_all: {}
-					    }
-					  }
-					}).on('data', function(res) {
-					  var oldUsers = [];
-					  for(var i=0;i<res.hits.hits.length;i++){
-						var currentTime = Math.floor(Date.now());
-						if((currentTime - res.hits.hits[i]._source.time) < 60000){
-							oldUsers.push({id:res.hits.hits[i]._source.id,name:res.hits.hits[i]._source.username});
-						}			  	
-					  	self.setState({allUsers: oldUsers});
-					  }
-					}).on('error', function(err) {
-					  console.log("search error: ", err);
-				})
-			}).on('error', function(err) {
-			  console.log("streaming error: ", err);
-			})
+			// appbaseRef.searchStream({
+			//   type: "activeUsers",
+			//   body: {
+			//     query: {
+			//       match_all: {}
+			//     }
+			//   }
+			// }).on('data', function(res) {
+			// 	console.log(res);
+			// 	  appbaseRef.search({
+			// 		  type: "activeUsers",
+			// 		  body: {
+			// 		    query: {
+			// 		      match_all: {}
+			// 		    }
+			// 		  }
+			// 		}).on('data', function(res) {
+			// 		  var oldUsers = [];
+			// 		  for(var i=0;i<res.hits.hits.length;i++){
+			// 			var currentTime = Math.floor(Date.now());
+			// 			if((currentTime - res.hits.hits[i]._source.time) < 60000){
+			// 				oldUsers.push({id:res.hits.hits[i]._source.id,name:res.hits.hits[i]._source.username});
+			// 			}			  	
+			// 		  	self.setState({allUsers: oldUsers});
+			// 		  }
+			// 		}).on('error', function(err) {
+			// 		  console.log("search error: ", err);
+			// 	})
+			// }).on('error', function(err) {
+			//   console.log("streaming error: ", err);
+			// })
 	}
 	/*typing the main message */
 	editMessage(event) {
@@ -389,12 +390,12 @@ class ChatRoom extends React.Component {
 							<div className="chatroom-logo-gif">
 								<img src="https://media.giphy.com/media/3o85xjSETVG3OpPyx2/giphy.gif" alt="Appbase GIF" />
 							</div>
-							<div className="all-font chatroom-visitor-list-title">
+							{/* <div className="all-font chatroom-visitor-list-title">
 								Online Users
 							</div>
 							<div className="row chatroom-visitor-list-box">
 								{activeNames}
-							</div>
+							</div> */}
 						</div>
 					</div>
 					<div className="col-lg-9 col-sm-9 col-md-9 chatroom-chatbox padding-0">

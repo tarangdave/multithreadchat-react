@@ -57,20 +57,15 @@ class WelcomePage extends React.Component {
     return (
       <div>
       	<div className="frontpage-display-layout">
-      		<div className="frontpage-input-background col-lg-4 col-md-4 col-sm-4">
+      		<div className="frontpage-input-background col-lg-2 col-md-2 col-sm-2">
       			<div className="frontpage-input-header">
       			</div>
       			<div className="row frontpage-input-content margin-0">
-      				<div className="all-font frontpage-input-title">Enter your chat name</div>
+      				<div className="all-font frontpage-input-title">Appbase Chatroom</div>
       				<div className="col-lg-12 col-md-12 col-sm-12 frontpage-input-image-logo">
-      					<div className="col-lg-6 col-md-6 col-sm-6 ">
-      						<div>
-      							<img src="https://appbase.io/images/logo-blue.png" alt="Appbase Logo"/>
-      						</div>
-      					</div>
-      					<div className="col-lg-6 col-md-6 col-sm-6">
-      						<input type="text" value={this.state.username} onKeyPress={this.handleKeyPress} onChange={this.editUsername} className="frontpage-input-style all-font" placeholder="Enter username"/>
-      					</div>
+						<div className="col-lg-12 col-md-12 col-sm-12">
+							<input type="text" value={this.state.username} onKeyPress={this.handleKeyPress} onChange={this.editUsername} className="frontpage-input-style all-font" placeholder="Enter username"/>
+						</div>
       				</div>
       			</div>
       			<div className="frontpage-input-footer">
